@@ -2,12 +2,13 @@ var express = require('express')
 var app = express()
 var fs = require('fs')
 var template = require('./lib/template.js')
-var qs = require('querystring')
+// var qs = require('querystring')
 var bodyParser = require('body-parser')
 var compression = require('compression')
 var topicRouter = require('./routes/topic')
+var indexRouter = require('./router/index')
 
-
+app.use(helmet())
 
 app.use(express.static('public'))
 app.use(compression())
@@ -21,23 +22,24 @@ app.get(`*`, function(request, response, next){
 app.use(bodyParser.urlencoded({ extended: false}));
 
 app.use('/topic', topicRouter)
+app.use('/', indexRouter)
 
 // app.get('/', (req,res) => res.send('Hello World!'))
 //route, routing 
-app.get('/', function(request,response){
-        //fs.readdir('./data', function(error, filelist){
-        var title = 'Welcome';
-        var description = 'Hello, Node.js';
-        var list = template.list(request.list);
-        var html = template.HTML(title, list,
-            `
-            <h2>${title}</h2>${description}
-            <img src="/images/hello.jpg" style="width:300px; display:block; margin-top:10px;">
-            `,
-            `<a href="/topic/create">create</a>`
-        );
-        response.end(html);
-});
+// app.get('/', function(request,response){
+//         //fs.readdir('./data', function(error, filelist){
+//         var title = 'Welcome';
+//         var description = 'Hello, Node.js';
+//         var list = template.list(request.list);
+//         var html = template.HTML(title, list,
+//             `
+//             <h2>${title}</h2>${description}
+//             <img src="/images/hello.jpg" style="width:300px; display:block; margin-top:10px;">
+//             `,
+//             `<a href="/topic/create">create</a>`
+//         );
+//         response.end(html);
+// });
 
 
 app.use(function(request, response, next){
