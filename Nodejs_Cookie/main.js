@@ -5,6 +5,36 @@ var qs = require('querystring');
 var template = require('./lib/template.js');
 var path = require('path');
 var sanitizeHtml = require('sanitize-html');
+var cookie = require('cookie')
+
+function authIsLogined(request, response){
+  var cookies = {}
+  if(request.headers.cookie){
+    cookies = cookie.parse(request.headers.cookie)
+  }
+  var isLogined=false
+  if(cookies.email == 'egoing777@gamil.com' && cookies.password == '111111'){
+    isLogined=true;
+  }
+  return isLogined
+}
+
+function authStatusUi(request, response){
+  var str = '<a href="/login">login</a>'
+  if(authIsLogined(request, response)){
+    str = '<a href="/logout_process">logout</a>';
+  };
+  return str;
+}
+
+function authOnlyOwner(request, response){
+  if(!authIsLogined(request, response)){
+    response.writeHead(302, {Location: `/`});
+    response.end();
+    return false;
+  }
+  return true;
+}
 
 var app = http.createServer(function(request,response){
     var _url = request.url;
@@ -135,7 +165,24 @@ var app = http.createServer(function(request,response){
             response.end();
           })
       });
-    } else {
+    } else if(pathname == 'login'){
+      fs.readdir('./data', function(error, filelist){
+        var title = 'Login';
+        var list = template.list(filelist);
+        var html = template.HTML(title, list,
+          `
+          <form action="login_process" method="post">
+            <p><input type="text" name="email" placeholder="email"></p>
+            <p><input type="password" name="password" placeholder="password"></p>
+            <p><input type="submit"></p>
+            </form>`,
+          `<a href="/create">create</a>`
+        );
+        response.writeHead(200);
+        response.end(html);
+      });
+    }
+    else {
       response.writeHead(404);
       response.end('Not found');
     }
