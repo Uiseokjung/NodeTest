@@ -1,8 +1,8 @@
 var express = require('express')
 var router = express.Router()
+var template = require('../lib/template.js')
 
 router.get('/', function(request,response){
-    //fs.readdir('./data', function(error, filelist){
     var title = 'Welcome';
     var description = 'Hello, Node.js';
     var list = template.list(request.list);
@@ -13,7 +13,7 @@ router.get('/', function(request,response){
         `,
         `<a href="/topic/create">create</a>`
     );
-    response.end(html);
-});
+    response.send(html);
+    });
 
-module.exports = router
+    module.exports = router
