@@ -7,7 +7,7 @@ var template = require('../lib/template')
 
 var authData = {
   email:'egoing777@gmail.com',
-  pwd:'111111',
+  password:'111111',
   nickname:'egoing'
 }
 
@@ -32,20 +32,22 @@ router.post('/login_process', function(request, response){
     var post = request.body;
     var email = post.email;
     var password = post.pwd;
-    if(email == authData.email && password == authData.pwd){
+    if(email == authData.email && password == authData.password){
       //success
       request.session.is_logined = true
       request.session.nickname = authData.nickname
-      response.redirect(`/`)
+      request.session.save(function(){
+        response.redirect(`/`)
+      })
     } else{
-      response.send('Who!')
+      response.send('Who?')
     }
   });
 
 router.get('/logout', function(request, response){
     request.session.destroy(function(err){
-      response.redirect(`/`)
-    })
+      response.redirect(`/`);
+    });
   });
 
 /*
