@@ -10,6 +10,8 @@ var helmet = require('helmet')
 var session = require('express-session')
 var FileStore = require('session-file-store')(session)
 
+var flash = require('connect-flash')
+
 var topicRouter = require('./routes/topic')
 var indexRouter = require('./routes/index')
 var authRouter = require('./routes/auth')
@@ -27,13 +29,93 @@ app.use(session({
   store:new FileStore()
 })) //세션 뒤에 passport가 등장해야함
 
+app.use(flash())
+
+/*
+app.get('/flash', function(req, res){
+  req.flash('msg', 'Flash is back!') //flash는 session store에 저장한다
+  res.send('flash')
+})
+
+app.get('/flash-display', function(req, res){
+  // res.render('index', { messages: req.flash('info') })
+  var fmsg = req.flash() //flash 데이터는 일회성 데이터
+  console.log(fmsg)
+  res.send(fmsg)
+})
+*/
+
+var authData = {
+  email:'egoing777@gmail.com',
+  password:'111111',
+  nickname:'egoing'
+}
+
 var passport = require('passport')
 , LocalStrategy = require('passport-local').Strategy
+
+app.use(passport.initialize())
+app.use(passport.session())
+
+passport.serializeUser(function(user, done){
+  done(null, user.email)
+})
+
+passport.deserializeUser(function(id, done){
+    done(null, authData)
+})
+
+passport.use(new LocalStrategy(
+  {
+    usernameField: 'email',
+    passwordField: 'pwd'
+  },
+  function(username, password, done){
+    if(username == authData.email){
+      if(password == authData.password){
+        return done(null, authData)
+      }else{
+        return done(null, false, {
+          message: 'Incorrect password.'
+        })
+      }
+    } else{
+      return done(null, false, {
+        message: 'Incorrect username.'
+      })
+    }
+
+    /*
+    User.findOne({
+      username: username
+    }, function(err, user){
+      if(err){
+        return done(err)
+      }
+      if(!user){
+        return done(null, false, {
+          message: 'Incorrect username.'
+        })
+      }
+      if(!user.validPassword(password)){
+        return done(null, false, {
+          message: 'Incorrect password.'
+        })
+      }
+      return done(null, user)
+    })
+    */
+  }
+))
+
 app.post('/auth/login_process',
 passport.authenticate('local', {
   successRedirect: '/',
-  failureRedirect: '/auth/login'
-}))
+  failureRedirect: '/auth/login',
+  failureFlash: true,
+  successFlash: true
+  })
+)
 
 
 
