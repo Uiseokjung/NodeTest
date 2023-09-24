@@ -8,8 +8,8 @@ module.exports = {
       <meta charset="utf-8">
     </head>
     <body>
-    ${authStatusUI}
-    <h1><a href="/">WEB</a></h1>
+      ${authStatusUI}
+      <h1><a href="/">WEB</a></h1>
       ${list}
       ${control}
       ${body}
